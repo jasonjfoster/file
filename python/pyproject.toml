@@ -1,0 +1,38 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [ "setuptools", "wheel" ]
+
+[project]
+name = "secfile"
+version = "0.1.0"
+description = """\
+  Simple and efficient access to the SEC's 'EDGAR' APIs <https://www.sec.gov/search-filings> for querying and \
+  retrieving filings.\
+  """
+readme = "README.md"
+keywords = [ "data", "edgar", "filings", "finance", "ixbrl", "sec", "xbrl" ]
+license = { text = "GPL-2.0-or-later" }
+authors = [ { name = "Jason Foster", email = "jason.j.foster@gmail.com" } ]
+requires-python = ">=3.10"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Financial and Insurance Industry",
+  "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Office/Business :: Financial",
+]
+dependencies = [ "lxml>=4", "pandas>=1", "requests>=2.2" ]
+urls.Documentation = "https://github.com/jasonjfoster/file/tree/main/python#readme"
+urls.Homepage = "https://github.com/jasonjfoster/file"
+urls.Issues = "https://github.com/jasonjfoster/file/issues"
+urls.Source = "https://github.com/jasonjfoster/file/tree/main/python"
+
+[tool.setuptools]
+package-data.secfile = [ "data/*.csv" ]
