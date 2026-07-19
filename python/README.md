@@ -1,5 +1,7 @@
 # file
 
+[![codecov](https://codecov.io/github/jasonjfoster/file/graph/badge.svg?token=ZQ1ML6FMEW)](https://codecov.io/github/jasonjfoster/file)
+
 ## Overview
 
 'secfile' provides simple and efficient access to the SEC's 'EDGAR' APIs <https://www.sec.gov/search-filings> for querying and retrieving filings.

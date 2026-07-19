@@ -1,6 +1,6 @@
 # Examples
 
-Common workflows for the `secfile` package, ordered by expected audience size. The ordering follows the most common use cases across the SEC EDGAR ecosystem: financial statement analysis first, bulk filing collection second, and event monitoring third.
+The examples in this directory demonstrate common workflows for the 'secfile' package, ordered by the most common use cases across the SEC EDGAR ecosystem: financial statement analysis first, bulk filing collection second, and event monitoring third.
 
 | Example | Workflow | Pipeline |
 |---|---|---|
@@ -10,21 +10,20 @@ Common workflows for the `secfile` package, ordered by expected audience size. T
 
 ## Notes
 
-* **Tickers**: use `get_ciks()` to look up the Central Index Key ("CIK") for tickers. Filers without a listed ticker (e.g., non-traded funds) must be identified by CIK or through the master index.
-* **User agent**: the SEC requires a user agent that declares contact information (e.g., `"username@domain.com"`) for fair access. Replace the placeholder in each example. The SEC returns 403 for user agents that contain a URL or impersonate a browser.
+* **Tickers**: use the `get_ciks()` method to look up the Central Index Key ("CIK") for one or more tickers. Filers without a listed ticker (e.g., non-traded funds) must be identified by CIK or through the master index.
+* **User agent**: the SEC requires a user agent that declares contact information (e.g., `"username@domain.com"`) for fair access. Replace the placeholder in each example. The SEC returns a 403 error for user agents that contain a URL or impersonate a browser.
 * **Sessions**: pass `session = sec.get_session(user_agent)` to reuse a connection across method calls; when a session is provided, the `user_agent` argument is ignored. Sessions are also cached by user agent automatically.
 * **Rate limiting**: the package pauses one second after every five requests automatically. Full-history index builds (`from_year = 1993`) request four quarterly files per year, so narrow the year range while iterating.
-* **Caching**: pass `cache_dir` to `get_data()` to cache downloaded XBRL instance documents (gzip-compressed) so repeated runs over large datasets only download new filings.
-* **Corporate networks**: behind TLS interception, install `truststore` and run `truststore.inject_into_ssl()` before any requests.
+* **Caching**: pass the `cache_dir` argument to the `get_data()` method to cache downloaded XBRL instance documents (gzip-compressed) so repeated runs over large datasets only download new filings.
 
 ## Dimensions in `get_data()`
 
 The `dimension` argument controls which XBRL contexts are returned:
 
-* `None` (default): all contexts that match the report date — company-level totals are the rows where `axis` is empty
+* `None` (default): all contexts that match the report date; company-level totals are the rows where `axis` is empty
 * `"typed"` or `"explicit"`: contexts with at least one typed or explicit member
 * An axis name (e.g., `"InvestmentIdentifierAxis"`): contexts on that axis, with or without the namespace prefix
 
 ## Scope
 
-The `get_data()` method parses inline XBRL instance documents, which covers financial reports (e.g., "10-K", "10-Q", "20-F", "N-CSR"). Filings that attach structured data as separate XML documents — insider transactions ("3", "4", "5") and fund holdings ("13F-HR", "NPORT-P") — are not parsed by `get_data()`, although their filing metadata and document URLs are available through `get_index()` and `get_submissions()`.
+The `get_data()` method parses inline XBRL instance documents, the format used by financial reports (e.g., "10-K", "10-Q", "20-F", "N-CSR"). Filings that attach structured data as separate XML documents, such as insider transactions ("3", "4", "5") and fund holdings ("13F-HR", "NPORT-P"), are not parsed by the `get_data()` method, although their filing metadata and document URLs are available through the `get_index()` and `get_submissions()` methods.

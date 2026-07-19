@@ -12,10 +12,6 @@ import secfile as sec
 # (e.g., "username@domain.com") for fair access
 user_agent = "username@domain.com"
 
-# note: on a corporate network with TLS interception, run first:
-# import truststore
-# truststore.inject_into_ssl()
-
 # explore the available form types
 print(sec.data_forms)
 
