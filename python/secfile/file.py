@@ -492,22 +492,23 @@ class Tenures:
 
       for i in range(n_rows):
 
-        form = group.iloc[i]["form"].upper()
+        row = group.iloc[i]
+        form = row["form"].upper()
 
         if form == entry_form:
 
-          start_date = group.iloc[i]["date"]
-          start_link = group.iloc[i]["link"]
+          start_date = row["date"]
+          start_link = row["link"]
 
         elif form == exit_form:
 
           result_ls.append({
-            "company": group.iloc[i]["company"],
+            "company": row["company"],
             "cik": cik,
             "start_date": start_date,
-            "end_date": group.iloc[i]["date"],
+            "end_date": row["date"],
             "start_link": start_link,
-            "end_link": group.iloc[i]["link"]
+            "end_link": row["link"]
           })
 
           start_date = None
@@ -516,7 +517,7 @@ class Tenures:
       if start_date is not None:
 
         result_ls.append({
-          "company": group.iloc[i]["company"],
+          "company": row["company"],
           "cik": cik,
           "start_date": start_date,
           "end_date": pd.NaT,
@@ -524,7 +525,12 @@ class Tenures:
           "end_link": None
         })
 
-    return pd.DataFrame(result_ls)
+    if (len(result_ls) == 0):
+      return pd.DataFrame()
+
+    result = pd.DataFrame(result_ls)
+
+    return result
 
 class Ciks:
 
@@ -735,7 +741,7 @@ class Submissions:
             print("pause one second after five requests")
             time.sleep(1)
 
-        if older:
+        if len(older) > 0:
           df = pd.concat([df] + older, ignore_index = True)
 
         if len(df) > 0:
