@@ -69,7 +69,7 @@ class Check:
   @staticmethod
   def user_agent(user_agent):
 
-    valid_user_agent = isinstance(user_agent, str) and user_agent.strip() != ""
+    valid_user_agent = isinstance(user_agent, str) and (user_agent.strip() != "")
 
     if not valid_user_agent:
       raise ValueError("invalid 'user_agent'")
@@ -80,8 +80,8 @@ class Check:
     if isinstance(forms, str):
       forms = [forms]
 
-    valid_forms = (isinstance(forms, (list, tuple)) and len(forms) > 0 and
-      all(isinstance(f, str) and f.strip() != "" for f in forms))
+    valid_forms = (isinstance(forms, (list, tuple)) and (len(forms) > 0) and
+      all(isinstance(f, str) and (f.strip() != "") for f in forms))
 
     if not valid_forms:
       raise ValueError("invalid 'forms'")
@@ -89,12 +89,12 @@ class Check:
   @staticmethod
   def tenures(entry_form, exit_form):
 
-    valid_entry_form = isinstance(entry_form, str) and entry_form.strip() != ""
+    valid_entry_form = isinstance(entry_form, str) and (entry_form.strip() != "")
 
     if not valid_entry_form:
       raise ValueError("invalid 'entry_form'")
 
-    valid_exit_form = isinstance(exit_form, str) and exit_form.strip() != ""
+    valid_exit_form = isinstance(exit_form, str) and (exit_form.strip() != "")
 
     if not valid_exit_form:
       raise ValueError("invalid 'exit_form'")
@@ -139,8 +139,8 @@ class Check:
     if isinstance(tickers, str):
       tickers = [tickers]
 
-    valid_tickers = (isinstance(tickers, (list, tuple)) and len(tickers) > 0 and
-      all(isinstance(t, str) and t.strip() != "" for t in tickers))
+    valid_tickers = (isinstance(tickers, (list, tuple)) and (len(tickers) > 0) and
+      all(isinstance(t, str) and (t.strip() != "") for t in tickers))
 
     if not valid_tickers:
       raise ValueError("invalid 'tickers'")
@@ -151,7 +151,7 @@ class Check:
     if isinstance(ciks, (str, int)):
       ciks = [ciks]
 
-    valid_ciks = (isinstance(ciks, (list, tuple)) and len(ciks) > 0 and
+    valid_ciks = (isinstance(ciks, (list, tuple)) and (len(ciks) > 0) and
       all(isinstance(c, (str, int)) and str(c).strip().isdigit() for c in ciks))
 
     if not valid_ciks:
@@ -161,7 +161,7 @@ class Check:
   def dimension(dimension):
 
     valid_dimension = (dimension is None) or (isinstance(dimension, str) and
-      dimension.strip() != "")
+      (dimension.strip() != ""))
 
     if not valid_dimension:
       raise ValueError("invalid 'dimension'")
@@ -195,7 +195,7 @@ class Process:
 
       fields = line.split("|")
 
-      if len(fields) == 5:
+      if (len(fields) == 5):
 
         cik, company, form, date, filename = fields
 
@@ -668,12 +668,28 @@ class Submissions:
       for cik, group in df.groupby("cik"):
 
         if "start_date" in group.columns:
-          start_date = pd.to_datetime(group["start_date"]).min()
+
+          start_dates = pd.to_datetime(group["start_date"])
+
+          # a missing start date means an unknown entry (no lower bound)
+          if start_dates.isna().any():
+            start_date = pd.to_datetime(from_date)
+          else:
+            start_date = start_dates.min()
+
         else:
           start_date = pd.to_datetime(from_date)
 
         if "end_date" in group.columns:
-          end_date = pd.to_datetime(group["end_date"]).max()
+
+          end_dates = pd.to_datetime(group["end_date"])
+
+          # a missing end date means an active tenure (no upper bound)
+          if end_dates.isna().any():
+            end_date = pd.to_datetime(to_date)
+          else:
+            end_date = end_dates.max()
+
         else:
           end_date = pd.to_datetime(to_date)
 
@@ -741,10 +757,10 @@ class Submissions:
             print("pause one second after five requests")
             time.sleep(1)
 
-        if len(older) > 0:
+        if (len(older) > 0):
           df = pd.concat([df] + older, ignore_index = True)
 
-        if len(df) > 0:
+        if (len(df) > 0):
 
           df["filingDate"] = pd.to_datetime(df["filingDate"])
 
@@ -757,7 +773,7 @@ class Submissions:
           if pd.notna(end_date):
             df = df[df["filingDate"] <= end_date]
 
-          if len(df) > 0:
+          if (len(df) > 0):
 
             df = df.copy()
             df["url"] = df.apply(lambda x: Process.url(cik, x["accessionNumber"], x["primaryDocument"]),
@@ -887,7 +903,7 @@ def get(data, dimension = None, date = None, cache_dir = None,
         with gzip.open(xml_path, "wb") as file:
           file.write(content)
 
-    if len(content) == 0:
+    if (len(content) == 0):
       warnings.warn(f"no content for CIK {cik} accession {accession}", UserWarning)
     else:
 
@@ -917,7 +933,7 @@ def get(data, dimension = None, date = None, cache_dir = None,
           print("pause one second after five requests")
           time.sleep(1)
 
-        if len(content) > 0:
+        if (len(content) > 0):
 
           with gzip.open(xml_path, "wb") as file:
             file.write(content)
@@ -939,7 +955,7 @@ def get(data, dimension = None, date = None, cache_dir = None,
         contexts = Process.contexts(root, target_date, dimension)
         result_df = Process.facts(root, contexts)
 
-        if len(result_df) > 0:
+        if (len(result_df) > 0):
 
           result_df.insert(0, "cik", cik)
           result_df.insert(1, "accession", accession)
