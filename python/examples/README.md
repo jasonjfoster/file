@@ -11,7 +11,7 @@ The examples in this directory demonstrate common workflows for the 'secfile' pa
 ## Notes
 
 * **Tickers**: use the `get_ciks()` method to look up the Central Index Key ("CIK") for one or more tickers. Filers without a listed ticker (e.g., non-traded funds) must be identified by CIK or through the master index.
-* **User agent**: the SEC requires a user agent that declares contact information (e.g., `"username@domain.com"`) for fair access. Replace the placeholder in each example. The SEC returns a 403 error for user agents that contain a URL or impersonate a browser.
+* **User agent**: the SEC requires a user agent that declares contact information (e.g., `"username@domain.com"`) for fair access. Replace the placeholder in each example. The SEC returns a 403 error for user agents that contain a URL, impersonate a browser, or omit contact information.
 * **Sessions**: pass `session = sec.get_session(user_agent)` to reuse a connection across method calls; when a session is provided, the `user_agent` argument is ignored. Sessions are also cached by user agent automatically.
 * **Rate limiting**: the package pauses one second after every five requests automatically. Full-history index builds (`from_year = 1993`) request four quarterly files per year, so narrow the year range while iterating.
 * **Caching**: pass the `cache_dir` argument to the `get_data()` method to cache downloaded XBRL instance documents (gzip-compressed) so repeated runs over large datasets only download new filings.

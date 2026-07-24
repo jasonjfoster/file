@@ -41,7 +41,7 @@ import secfile as sec
 print(sec.data_forms)
 ```
 
-The SEC requires a user agent that declares contact information for fair access. The package identifies itself by default, but pass the `user_agent` argument to identify the user:
+The SEC requires a user agent that declares contact information for fair access, so pass the `user_agent` argument to identify the user:
 
 ```python
 user_agent = "username@domain.com"

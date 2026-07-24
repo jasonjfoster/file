@@ -7,8 +7,8 @@ import importlib.resources as pkg_resources
 import warnings
 from lxml import etree
 
-# the sec returns 403 for user agents that contain a url or
-# impersonate a browser
+# the sec returns 403 for user agents that contain a url, impersonate
+# a browser, or omit contact information (e.g., "username@domain.com")
 user_agent = "secfile"
 
 class ClassProperty:
@@ -49,7 +49,9 @@ class Data:
     Items Data for the SEC EDGAR APIs
 
     A data frame with the available items data for the SEC EDGAR APIs
-    sourced from <https://www.sec.gov/Archives/edgar/lookup-data.js>.
+    sourced from <https://www.sec.gov/Archives/edgar/lookup-data.js>
+    and supplemented with items adopted after the source was last updated
+    (e.g., "1.05").
     Dotted item numbers (e.g., "2.02") apply to current report ("8-K")
     filings after August 2004 and un-dotted item numbers (e.g., "12")
     apply to earlier filings.
@@ -69,7 +71,8 @@ class Check:
   @staticmethod
   def user_agent(user_agent):
 
-    valid_user_agent = isinstance(user_agent, str) and (user_agent.strip() != "")
+    valid_user_agent = (isinstance(user_agent, str) and ("@" in user_agent) and
+      ("." in user_agent.split("@")[-1]))
 
     if not valid_user_agent:
       raise ValueError("invalid 'user_agent'")
@@ -99,7 +102,7 @@ class Check:
     if not valid_exit_form:
       raise ValueError("invalid 'exit_form'")
 
-    if entry_form.upper() == exit_form.upper():
+    if (entry_form.upper() == exit_form.upper()):
       raise ValueError("value of 'exit_form' must not equal value of 'entry_form'")
 
   @staticmethod
@@ -110,27 +113,27 @@ class Check:
     if not valid_year:
       raise ValueError(f"invalid '{type}'")
 
-    if year < 1993:
+    if (year < 1993):
       raise ValueError(f"value of '{type}' must be greater than or equal to 1993")
 
   @staticmethod
   def years(from_year, to_year):
 
-    if to_year < from_year:
+    if (to_year < from_year):
       raise ValueError("value of 'to_year' must be greater than or equal to value of 'from_year'")
 
   @staticmethod
   def date(date, type):
 
     try:
-      pd.to_datetime(date)
+      pd.to_datetime(date, format = "%Y-%m-%d")
     except ValueError:
       raise ValueError(f"invalid '{type}'")
 
   @staticmethod
   def dates(from_date, to_date):
 
-    if pd.to_datetime(to_date) < pd.to_datetime(from_date):
+    if (pd.to_datetime(to_date) < pd.to_datetime(from_date)):
       raise ValueError("value of 'to_date' must be greater than or equal to value of 'from_date'")
 
   @staticmethod
@@ -181,7 +184,7 @@ class Process:
     header = "CIK|Company Name|Form Type|Date Filed|Filename"
     prefix = "https://www.sec.gov/Archives/"
 
-    if header in text:
+    if (header in text):
 
       start_idx = text.index(header)
       lines = text[start_idx:].splitlines()[2:]
@@ -277,7 +280,7 @@ class Process:
         # "typed"/"explicit" matches by member type, otherwise by axis name (with or without namespace prefix)
         if dimension is None:
           match = True
-        elif dimension in ["typed", "explicit"]:
+        elif (dimension in ["typed", "explicit"]):
           match = any(dim["type"] == dimension for dim in dims)
         else:
           match = any((dim["axis"] == dimension) or
@@ -306,7 +309,7 @@ class Process:
 
       ctx_id = el.attrib.get("contextRef")
 
-      if ctx_id in result_ls:
+      if (ctx_id in result_ls):
 
         tag = el.tag.split("}")[-1]
         result_ls[ctx_id][tag] = (el.text or "").strip()
@@ -343,7 +346,7 @@ class Session:
 
     Check.user_agent(user_agent)
 
-    if user_agent not in Session._cache:
+    if (user_agent not in Session._cache):
 
       session = requests.Session()
 
@@ -434,7 +437,7 @@ class Index:
 
         count += 1
 
-        if count % 5 == 0:
+        if (count % 5 == 0):
 
           print("pause one second after five requests")
           time.sleep(1)
@@ -495,12 +498,12 @@ class Tenures:
         row = group.iloc[i]
         form = row["form"].upper()
 
-        if form == entry_form:
+        if (form == entry_form):
 
           start_date = row["date"]
           start_link = row["link"]
 
-        elif form == exit_form:
+        elif (form == exit_form):
 
           result_ls.append({
             "company": row["company"],
@@ -667,7 +670,7 @@ class Submissions:
 
       for cik, group in df.groupby("cik"):
 
-        if "start_date" in group.columns:
+        if ("start_date" in group.columns):
 
           start_dates = pd.to_datetime(group["start_date"])
 
@@ -680,7 +683,7 @@ class Submissions:
         else:
           start_date = pd.to_datetime(from_date)
 
-        if "end_date" in group.columns:
+        if ("end_date" in group.columns):
 
           end_dates = pd.to_datetime(group["end_date"])
 
@@ -727,7 +730,7 @@ class Submissions:
 
       count += 1
 
-      if count % 5 == 0:
+      if (count % 5 == 0):
 
         print("pause one second after five requests")
         time.sleep(1)
@@ -752,7 +755,7 @@ class Submissions:
 
           count += 1
 
-          if count % 5 == 0:
+          if (count % 5 == 0):
 
             print("pause one second after five requests")
             time.sleep(1)
@@ -835,7 +838,7 @@ def get(data, dimension = None, date = None, cache_dir = None,
   if (len(df) == 0):
     return pd.DataFrame()
 
-  if "isInlineXBRL" in df.columns:
+  if ("isInlineXBRL" in df.columns):
     df = df[df["isInlineXBRL"].astype(bool)]
 
   df = df.dropna(subset = ["cik", "accessionNumber", "primaryDocument", "reportDate"])
@@ -894,7 +897,7 @@ def get(data, dimension = None, date = None, cache_dir = None,
 
       count += 1
 
-      if count % 5 == 0:
+      if (count % 5 == 0):
 
         print("pause one second after five requests")
         time.sleep(1)
@@ -928,7 +931,7 @@ def get(data, dimension = None, date = None, cache_dir = None,
 
         count += 1
 
-        if count % 5 == 0:
+        if (count % 5 == 0):
 
           print("pause one second after five requests")
           time.sleep(1)
