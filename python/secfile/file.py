@@ -7,9 +7,9 @@ import importlib.resources as pkg_resources
 import warnings
 from lxml import etree
 
-# the sec returns 403 for user agents that contain a url, impersonate
-# a browser, or omit contact information (e.g., "username@domain.com")
-user_agent = "secfile"
+# the sec returns 403 for user agents that contain a url or impersonate
+# a browser and requests contact information (e.g., "username@domain.com")
+user_agent = None
 
 class ClassProperty:
 
@@ -852,6 +852,10 @@ def get(data, dimension = None, date = None, cache_dir = None,
   if cache_dir is not None:
     os.makedirs(cache_dir, exist_ok = True)
 
+  # large filings (e.g., bdc schedules of investments) exceed the default
+  # parser's text node limit
+  parser = etree.XMLParser(huge_tree = True)
+
   count = 0
   n_filings = len(df)
   result_ls = []
@@ -911,7 +915,7 @@ def get(data, dimension = None, date = None, cache_dir = None,
     else:
 
       try:
-        root = etree.fromstring(content)
+        root = etree.fromstring(content, parser)
       except etree.XMLSyntaxError:
         root = None
 
@@ -942,7 +946,7 @@ def get(data, dimension = None, date = None, cache_dir = None,
             file.write(content)
 
           try:
-            root = etree.fromstring(content)
+            root = etree.fromstring(content, parser)
           except etree.XMLSyntaxError:
             root = None
 
