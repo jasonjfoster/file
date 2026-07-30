@@ -108,7 +108,7 @@ class Check:
   @staticmethod
   def year(year, type):
 
-    valid_year = isinstance(year, int)
+    valid_year = isinstance(year, int) and not isinstance(year, bool)
 
     if not valid_year:
       raise ValueError(f"invalid '{type}'")
@@ -224,7 +224,7 @@ class Process:
   @staticmethod
   def text(element):
 
-    result = element.text.strip() if (element is not None) and element.text else None
+    result = (element.text.strip() or None) if (element is not None) and element.text else None
 
     return result
 
