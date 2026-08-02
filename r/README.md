@@ -1,6 +1,6 @@
 # file
 
-[![codecov](https://codecov.io/github/jasonjfoster/file/graph/badge.svg?token=ZQ1ML6FMEW)](https://codecov.io/github/jasonjfoster/file)
+[![codecov](https://codecov.io/github/jasonjfoster/file/graph/badge.svg)](https://app.codecov.io/github/jasonjfoster/file)
 
 ## Overview
 
@@ -67,4 +67,4 @@ Finally, retrieve facts from inline XBRL filings using the `get_data()` function
 data <- get_data(submissions, cache_dir = "cache", user_agent = user_agent)
 ```
 
-See the [examples](examples/) directory for complete workflows, including company-level fundamentals, survivorship-bias-free universe construction, and material event monitoring.
+See the [examples](https://github.com/jasonjfoster/file/tree/main/r/examples) directory for complete workflows, including company-level fundamentals, survivorship-bias-free universe construction, and material event monitoring.

@@ -1,6 +1,8 @@
 # file
 
-[![codecov](https://codecov.io/github/jasonjfoster/file/graph/badge.svg)](https://codecov.io/github/jasonjfoster/file)
+[![PyPI version](https://img.shields.io/pypi/v/secfile?label=PyPI&color=brightgreen)](https://pypi.org/project/secfile/)
+[![codecov](https://codecov.io/github/jasonjfoster/file/graph/badge.svg)](https://app.codecov.io/github/jasonjfoster/file)
+[![Downloads](https://img.shields.io/pypi/dm/secfile?color=brightgreen)](https://pypistats.org/packages/secfile)
 
 ## Overview
 
@@ -66,4 +68,4 @@ Finally, retrieve facts from inline XBRL filings using the `get_data()` method. 
 data = sec.get_data(submissions, cache_dir = "cache", user_agent = user_agent)
 ```
 
-See the [examples](examples/) directory for complete workflows, including company-level fundamentals, survivorship-bias-free universe construction, and material event monitoring.
+See the [examples](https://github.com/jasonjfoster/file/tree/main/python/examples) directory for complete workflows, including company-level fundamentals, survivorship-bias-free universe construction, and material event monitoring.
