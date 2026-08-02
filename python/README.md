@@ -1,6 +1,6 @@
 # file
 
-[![codecov](https://codecov.io/github/jasonjfoster/file/graph/badge.svg?token=ZQ1ML6FMEW)](https://codecov.io/github/jasonjfoster/file)
+[![codecov](https://codecov.io/github/jasonjfoster/file/graph/badge.svg)](https://codecov.io/github/jasonjfoster/file)
 
 ## Overview
 
