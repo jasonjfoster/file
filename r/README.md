@@ -1,6 +1,9 @@
 # file
 
+[![GitHub Actions](https://github.com/jasonjfoster/file/actions/workflows/check-standard.yaml/badge.svg)](https://github.com/jasonjfoster/file/actions/workflows/check-standard.yaml)
+[![CRAN version](https://www.r-pkg.org/badges/version/secfile)](https://cran.r-project.org/package=secfile)
 [![codecov](https://codecov.io/github/jasonjfoster/file/graph/badge.svg)](https://app.codecov.io/github/jasonjfoster/file)
+[![Downloads](https://cranlogs.r-pkg.org/badges/secfile?color=brightgreen)](https://www.r-pkg.org/pkg/secfile)
 
 ## Overview
 
