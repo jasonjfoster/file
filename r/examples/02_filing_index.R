@@ -30,13 +30,14 @@ print(table(quarters(index[["date"]])))
 print(head(index[["link"]]))
 
 # 2. refine the universe to a point in time: pair exchange listing
-#    registration ("8-A12B") and removal ("25") filings to build listing
-#    status windows for survivorship-bias-free universes
+#    registration ("8-A12B") and removal filings to build listing status
+#    windows for survivorship-bias-free universes; removals are filed by
+#    the issuer ("25") or the exchange ("25-NSE")
 #    (use from_year = 1993 for the full history)
-index <- get_index(from_year = 2024, forms = c("8-A12B", "25"),
+index <- get_index(from_year = 2024, forms = c("8-A12B", "25", "25-NSE"),
                    session = session)
 
-tenures <- create_tenures(index, "8-A12B", "25")
+tenures <- create_tenures(index, "8-A12B", c("25", "25-NSE"))
 
 # filers listed as of a point in time: the end date is missing for
 # active listings

@@ -49,22 +49,22 @@ check_forms <- function(forms) {
 
 check_tenures <- function(entry_form, exit_form) {
 
-  valid_entry_form <- is.character(entry_form) && (length(entry_form) == 1) &&
-    nzchar(trimws(entry_form))
+  valid_entry_form <- is.character(entry_form) && (length(entry_form) > 0) &&
+    all(nzchar(trimws(entry_form))) && !anyNA(entry_form)
 
   if (!valid_entry_form) {
     stop("invalid 'entry_form'")
   }
 
-  valid_exit_form <- is.character(exit_form) && (length(exit_form) == 1) &&
-    nzchar(trimws(exit_form))
+  valid_exit_form <- is.character(exit_form) && (length(exit_form) > 0) &&
+    all(nzchar(trimws(exit_form))) && !anyNA(exit_form)
 
   if (!valid_exit_form) {
     stop("invalid 'exit_form'")
   }
 
-  if (toupper(entry_form) == toupper(exit_form)) {
-    stop("value of 'exit_form' must not equal value of 'entry_form'")
+  if (any(toupper(exit_form) %in% toupper(entry_form))) {
+    stop("values of 'exit_form' must not equal values of 'entry_form'")
   }
 
 }
@@ -447,8 +447,8 @@ get_session <- function(user_agent = NULL) {
 #'
 #' @param from_year integer. Start year (e.g., 1993).
 #' @param to_year integer. End year.
-#' @param forms string. Form type or vector of form types to filter
-#' (see \code{"data_forms"}) or \code{NULL} for all form types.
+#' @param forms string or character vector. Form type or vector of form
+#' types to filter (see \code{"data_forms"}) or \code{NULL} for all form types.
 #' @param user_agent string. User agent with contact information.
 #' @param session list. Session created using the \code{\link{get_session}}
 #' function. When a session is provided, the \code{user_agent} argument is ignored.
@@ -549,17 +549,20 @@ get_index <- function(from_year = 1993, to_year = NULL, forms = c("10-K", "10-Q"
 #'
 #' @param data data frame. Data that contains the company, CIK, form, date,
 #' and link for each filing created using the \code{\link{get_index}} function.
-#' @param entry_form string. Form type that starts a tenure (e.g., "8-A12B").
-#' @param exit_form string. Form type that ends a tenure (e.g., "25").
+#' @param entry_form string or character vector. Form type or vector of
+#' form types that start a tenure (e.g., "8-A12B").
+#' @param exit_form string or character vector. Form type or vector of
+#' form types that end a tenure (e.g., "25" and "25-NSE").
 #' @return A data frame that contains the company, CIK, start date, end date,
 #' start link, and end link for each tenure. The end date is missing
 #' for active tenures.
 #'
 #' @examples
 #' \dontrun{
-#' index <- get_index(forms = c("8-A12B", "25"), user_agent = "username@@domain.com")
+#' index <- get_index(forms = c("8-A12B", "25", "25-NSE"),
+#'                    user_agent = "username@@domain.com")
 #'
-#' tenures <- create_tenures(index, "8-A12B", "25")
+#' tenures <- create_tenures(index, "8-A12B", c("25", "25-NSE"))
 #' }
 #' @export
 create_tenures <- function(data, entry_form, exit_form) {
@@ -590,12 +593,12 @@ create_tenures <- function(data, entry_form, exit_form) {
       row <- group[i, ]
       form <- toupper(row[["form"]])
 
-      if (form == entry_form) {
+      if (form %in% entry_form) {
 
         start_date <- row[["date"]]
         start_link <- row[["link"]]
 
-      } else if (form == exit_form) {
+      } else if (form %in% exit_form) {
 
         result_ls <- append(result_ls, list(data.frame(
           company = row[["company"]],
@@ -647,8 +650,8 @@ create_tenures <- function(data, entry_form, exit_form) {
 #' passed to the \code{\link{get_submissions}} function. Filers with multiple
 #' share classes have one row for each ticker.
 #'
-#' @param tickers string. Ticker or vector of tickers to filter
-#' or \code{NULL} for all tickers.
+#' @param tickers string or character vector. Ticker or vector of tickers
+#' to filter or \code{NULL} for all tickers.
 #' @param user_agent string. User agent with contact information.
 #' @param session list. Session created using the \code{\link{get_session}}
 #' function. When a session is provided, the \code{user_agent} argument is ignored.
@@ -725,12 +728,12 @@ get_ciks <- function(tickers = NULL, user_agent = NULL, session = NULL) {
 #' A function to get the filing metadata ("submissions") from the SEC EDGAR
 #' APIs for filers with optional form types and date range.
 #'
-#' @param ciks string, numeric, or data frame. CIK or vector of CIKs, or a data
-#' frame that contains a \code{cik} column with optional \code{start_date} and
-#' \code{end_date} columns created using the \code{\link{get_ciks}} or
-#' \code{\link{create_tenures}} functions.
-#' @param forms string. Form type or vector of form types to filter
-#' (see \code{"data_forms"}) or \code{NULL} for all form types.
+#' @param ciks string, numeric, vector, or data frame. CIK or vector of CIKs,
+#' or a data frame that contains a \code{cik} column with optional
+#' \code{start_date} and \code{end_date} columns created using the
+#' \code{\link{get_ciks}} or \code{\link{create_tenures}} functions.
+#' @param forms string or character vector. Form type or vector of form
+#' types to filter (see \code{"data_forms"}) or \code{NULL} for all form types.
 #' @param from_date string. Start date in "YYYY-MM-DD" format.
 #' @param to_date string. End date in "YYYY-MM-DD" format.
 #' @param user_agent string. User agent with contact information.

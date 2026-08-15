@@ -12,8 +12,8 @@ get_index(from_year = 1993, to_year = NULL, forms = c("10-K", "10-Q"),
 
 \item{to_year}{integer. End year.}
 
-\item{forms}{string. Form type or vector of form types to filter
-(see \code{"data_forms"}) or \code{NULL} for all form types.}
+\item{forms}{string or character vector. Form type or vector of form
+types to filter (see \code{"data_forms"}) or \code{NULL} for all form types.}
 
 \item{user_agent}{string. User agent with contact information.}
 

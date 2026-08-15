@@ -15,6 +15,8 @@ The examples in this directory demonstrate common workflows for the 'secfile' pa
 * **Sessions**: pass `session = get_session(user_agent)` to reuse a connection across function calls; when a session is provided, the `user_agent` argument is ignored. Sessions are also cached by user agent automatically.
 * **Rate limiting**: the package pauses one second after every five requests automatically. Full-history index builds (`from_year = 1993`) request four quarterly files per year, so narrow the year range while iterating.
 * **Caching**: pass the `cache_dir` argument to the `get_data()` function to cache downloaded XBRL instance documents (gzip-compressed) so repeated runs over large datasets only download new filings.
+* **Periods**: each row returned by the `get_data()` function is a context with a `period_type` of `"instant"` (a point in time, e.g., balance-sheet facts) or `"duration"` (a date range, e.g., income-statement facts). Filter the `period_type` column to select the facts of interest; fact columns for the other period type are missing (`NA`).
+* **Removals**: exchange listings are removed by the issuer ("25") or the exchange ("25-NSE"), so pass both form types as exit forms when building tenures (e.g., `create_tenures(index, "8-A12B", c("25", "25-NSE"))`).
 
 ## Dimensions in `get_data()`
 

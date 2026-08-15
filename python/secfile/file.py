@@ -92,18 +92,26 @@ class Check:
   @staticmethod
   def tenures(entry_form, exit_form):
 
-    valid_entry_form = isinstance(entry_form, str) and (entry_form.strip() != "")
+    if isinstance(entry_form, str):
+      entry_form = [entry_form]
+
+    valid_entry_form = (isinstance(entry_form, (list, tuple)) and (len(entry_form) > 0) and
+      all(isinstance(f, str) and (f.strip() != "") for f in entry_form))
 
     if not valid_entry_form:
       raise ValueError("invalid 'entry_form'")
 
-    valid_exit_form = isinstance(exit_form, str) and (exit_form.strip() != "")
+    if isinstance(exit_form, str):
+      exit_form = [exit_form]
+
+    valid_exit_form = (isinstance(exit_form, (list, tuple)) and (len(exit_form) > 0) and
+      all(isinstance(f, str) and (f.strip() != "") for f in exit_form))
 
     if not valid_exit_form:
       raise ValueError("invalid 'exit_form'")
 
-    if (entry_form.upper() == exit_form.upper()):
-      raise ValueError("value of 'exit_form' must not equal value of 'entry_form'")
+    if any(f.upper() in [e.upper() for e in entry_form] for f in exit_form):
+      raise ValueError("values of 'exit_form' must not equal values of 'entry_form'")
 
   @staticmethod
   def year(year, type):
@@ -464,8 +472,10 @@ class Tenures:
     Parameters:
       data (data frame): data that contains the company, CIK, form, date,
         and link for each filing created using the `get_index` method.
-      entry_form (str): form type that starts a tenure (e.g., "8-A12B").
-      exit_form (str): form type that ends a tenure (e.g., "25").
+      entry_form (str or list of str): form type or list of form types that
+        start a tenure (e.g., "8-A12B").
+      exit_form (str or list of str): form type or list of form types that
+        end a tenure (e.g., "25" and "25-NSE").
 
     Returns:
       A data frame that contains the company, CIK, start date, end date,
@@ -473,14 +483,20 @@ class Tenures:
       for active tenures.
 
     Examples:
-      index = sec.get_index(forms = ["8-A12B", "25"], user_agent = "username@domain.com")
-      tenures = sec.create_tenures(index, "8-A12B", "25")
+      index = sec.get_index(forms = ["8-A12B", "25", "25-NSE"], user_agent = "username@domain.com")
+      tenures = sec.create_tenures(index, "8-A12B", ["25", "25-NSE"])
     """
 
     Check.tenures(entry_form, exit_form)
 
-    entry_form = entry_form.upper()
-    exit_form = exit_form.upper()
+    if isinstance(entry_form, str):
+      entry_form = [entry_form]
+
+    if isinstance(exit_form, str):
+      exit_form = [exit_form]
+
+    entry_form = [f.upper() for f in entry_form]
+    exit_form = [f.upper() for f in exit_form]
 
     df = data.copy()
     df["date"] = pd.to_datetime(df["date"])
@@ -498,12 +514,12 @@ class Tenures:
         row = group.iloc[i]
         form = row["form"].upper()
 
-        if (form == entry_form):
+        if (form in entry_form):
 
           start_date = row["date"]
           start_link = row["link"]
 
-        elif (form == exit_form):
+        elif (form in exit_form):
 
           result_ls.append({
             "company": row["company"],

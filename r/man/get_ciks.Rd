@@ -7,8 +7,8 @@
 get_ciks(tickers = NULL, user_agent = NULL, session = NULL)
 }
 \arguments{
-\item{tickers}{string. Ticker or vector of tickers to filter
-or \code{NULL} for all tickers.}
+\item{tickers}{string or character vector. Ticker or vector of tickers
+to filter or \code{NULL} for all tickers.}
 
 \item{user_agent}{string. User agent with contact information.}
 

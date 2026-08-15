@@ -35,7 +35,10 @@ data <- get_data(submissions, cache_dir = "cache", user_agent = user_agent)
 # axes and members, and facts (e.g., revenue, assets) as columns
 print(data[ , c("cik", "report_date", "period_type", "period_start", "period_end")])
 
-# company-level totals are the contexts without dimensions
-totals <- data[which(data[["axis"]] == ""), ]
+# company-level totals are the contexts without dimensions; balance-sheet
+# facts are reported for a point in time ("instant" contexts), while
+# duration contexts carry income-statement facts instead
+totals <- data[which((data[["axis"]] == "") &
+                     (data[["period_type"]] == "instant")), ]
 print(totals[ , intersect(c("cik", "report_date", "Assets", "Liabilities",
                             "StockholdersEquity"), colnames(totals))])

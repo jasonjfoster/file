@@ -81,6 +81,24 @@ def test_that(): # valid 'forms', 'tickers', 'ciks', and 'dimension'
       "value": "entry_form, exit_form"
     })
 
+  # registrations are filed under section 12(b) ("8-A12B") or 12(g) ("8-A12G");
+  # removals are filed by the issuer ("25") or the exchange ("25-NSE")
+  try:
+
+    tenures_vector = sec.create_tenures(index, ["8-A12B", "8-A12G"],
+                                        ["25", "25-NSE"])
+    response = "success" if (len(tenures_vector) >= len(tenures)) else None
+
+  except:
+    response = None
+
+  if response is None:
+
+    errors_ls.append({
+      "call": "create_tenures",
+      "value": "entry_forms, exit_forms"
+    })
+
   for tickers in test_tickers:
 
     try:

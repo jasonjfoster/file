@@ -1,6 +1,6 @@
 from .file import Data, Session, Index, Tenures, Ciks, Submissions, user_agent
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 data_forms = Data.forms
 data_items = Data.items

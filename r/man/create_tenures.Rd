@@ -10,9 +10,11 @@ create_tenures(data, entry_form, exit_form)
 \item{data}{data frame. Data that contains the company, CIK, form, date,
 and link for each filing created using the \code{\link{get_index}} function.}
 
-\item{entry_form}{string. Form type that starts a tenure (e.g., "8-A12B").}
+\item{entry_form}{string or character vector. Form type or vector of
+form types that start a tenure (e.g., "8-A12B").}
 
-\item{exit_form}{string. Form type that ends a tenure (e.g., "25").}
+\item{exit_form}{string or character vector. Form type or vector of
+form types that end a tenure (e.g., "25" and "25-NSE").}
 }
 \value{
 A data frame that contains the company, CIK, start date, end date,
@@ -26,8 +28,9 @@ removal).
 }
 \examples{
 \dontrun{
-index <- get_index(forms = c("8-A12B", "25"), user_agent = "username@domain.com")
+index <- get_index(forms = c("8-A12B", "25", "25-NSE"),
+                   user_agent = "username@domain.com")
 
-tenures <- create_tenures(index, "8-A12B", "25")
+tenures <- create_tenures(index, "8-A12B", c("25", "25-NSE"))
 }
 }

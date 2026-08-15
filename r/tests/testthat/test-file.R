@@ -89,6 +89,32 @@ test_that("valid 'forms', 'tickers', 'ciks', and 'dimension'", {
 
   }
 
+  # registrations are filed under section 12(b) ("8-A12B") or 12(g) ("8-A12G");
+  # removals are filed by the issuer ("25") or the exchange ("25-NSE")
+  response <- tryCatch({
+
+    tenures_vector <- create_tenures(index, c("8-A12B", "8-A12G"),
+                                     c("25", "25-NSE"))
+
+    if (nrow(tenures_vector) >= nrow(tenures)) {
+      "success"
+    } else {
+      NULL
+    }
+
+  }, error = function(e) {
+    NULL
+  })
+
+  if (is.null(response)) {
+
+    errors_ls <- append(errors_ls, list(data.frame(
+      call = "create_tenures",
+      value = "entry_forms, exit_forms"
+    )))
+
+  }
+
   ciks <- data.frame()
 
   for (tickers in test_tickers) {

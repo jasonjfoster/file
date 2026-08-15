@@ -30,13 +30,14 @@ print(index.groupby(index["date"].dt.quarter).size())
 print(index["link"].head())
 
 # 2. refine the universe to a point in time: pair exchange listing
-#    registration ("8-A12B") and removal ("25") filings to build listing
-#    status windows for survivorship-bias-free universes
+#    registration ("8-A12B") and removal filings to build listing status
+#    windows for survivorship-bias-free universes; removals are filed by
+#    the issuer ("25") or the exchange ("25-NSE")
 #    (use from_year = 1993 for the full history)
-index = sec.get_index(from_year = 2024, forms = ["8-A12B", "25"],
+index = sec.get_index(from_year = 2024, forms = ["8-A12B", "25", "25-NSE"],
                       session = session)
 
-tenures = sec.create_tenures(index, "8-A12B", "25")
+tenures = sec.create_tenures(index, "8-A12B", ["25", "25-NSE"])
 
 # filers listed as of a point in time: the end date is missing for
 # active listings
