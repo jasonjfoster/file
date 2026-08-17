@@ -327,6 +327,14 @@ class Process:
 
     return result
 
+  @staticmethod
+  def align(dfs):
+
+    # union of columns in order of appearance with missing values filled
+    result = pd.concat(dfs, ignore_index = True)
+
+    return result
+
 class Session:
 
   _cache = {}
@@ -777,7 +785,7 @@ class Submissions:
             time.sleep(1)
 
         if (len(older) > 0):
-          df = pd.concat([df] + older, ignore_index = True)
+          df = Process.align([df] + older)
 
         if (len(df) > 0):
 
@@ -804,7 +812,7 @@ class Submissions:
     if (len(result_ls) == 0):
       return pd.DataFrame()
 
-    result = pd.concat(result_ls, ignore_index = True)
+    result = Process.align(result_ls)
 
     return result
 
@@ -989,7 +997,7 @@ def get(data, dimension = None, date = None, cache_dir = None,
   if (len(result_ls) == 0):
     return pd.DataFrame()
 
-  result = pd.concat(result_ls, ignore_index = True)
+  result = Process.align(result_ls)
 
   return result
 

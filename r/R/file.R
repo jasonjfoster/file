@@ -184,7 +184,8 @@ process_index <- function(text) {
     cik = rows[ , 1],
     form = rows[ , 3],
     date = rows[ , 4],
-    link = paste0(prefix, rows[ , 5])
+    link = paste0(prefix, rows[ , 5]),
+    stringsAsFactors = FALSE
   )
 
   return(result)
@@ -366,7 +367,7 @@ process_facts <- function(root, contexts) {
       row[[col_na]] <- NA
     }
 
-    data.frame(row[cols], check.names = FALSE)
+    data.frame(row[cols], check.names = FALSE, stringsAsFactors = FALSE)
 
   })
 
@@ -377,23 +378,30 @@ process_facts <- function(root, contexts) {
 
 }
 
-process_align <- function(dfs, cols) {
+process_align <- function(dfs) {
 
-  result_ls <- list()
+  # union of columns in order of appearance with missing values filled
+  cols <- unique(unlist(lapply(dfs, colnames)))
+  names(cols) <- cols
 
-  for (df in dfs) {
+  result <- data.frame(
+    lapply(cols, function(col) {
+      do.call(c, lapply(dfs, function(df) {
 
-    cols_na <- setdiff(cols, colnames(df))
+        if (col %in% colnames(df)) {
+          df[[col]]
+        } else {
+          rep(NA, nrow(df))
+        }
 
-    for (col_na in cols_na) {
-      df[[col_na]] <- NA
-    }
+      }))
+    }),
+    check.names = FALSE, stringsAsFactors = FALSE
+  )
 
-    result_ls <- append(result_ls, list(df[ , cols]))
+  rownames(result) <- NULL
 
-  }
-
-  return(result_ls)
+  return(result)
 
 }
 
@@ -606,7 +614,8 @@ create_tenures <- function(data, entry_form, exit_form) {
           start_date = start_date,
           end_date = row[["date"]],
           start_link = start_link,
-          end_link = row[["link"]]
+          end_link = row[["link"]],
+          stringsAsFactors = FALSE
         )))
 
         start_date <- as.Date(NA)
@@ -624,7 +633,8 @@ create_tenures <- function(data, entry_form, exit_form) {
         start_date = start_date,
         end_date = as.Date(NA),
         start_link = start_link,
-        end_link = NA_character_
+        end_link = NA_character_,
+        stringsAsFactors = FALSE
       )))
 
     }
@@ -704,7 +714,8 @@ get_ciks <- function(tickers = NULL, user_agent = NULL, session = NULL) {
         result_ls <- append(result_ls, list(data.frame(
           company = value[["title"]],
           cik = as.character(value[["cik_str"]]),
-          ticker = ticker
+          ticker = ticker,
+          stringsAsFactors = FALSE
         )))
 
       }
@@ -854,7 +865,6 @@ get_submissions <- function(ciks, forms = c("10-K", "10-Q"), from_date = NULL, t
   handle <- session[["handle"]]
 
   count <- 0
-  result_cols <- NULL
   result_ls <- list()
 
   for (group in groups) {
@@ -886,7 +896,8 @@ get_submissions <- function(ciks, forms = c("10-K", "10-Q"), from_date = NULL, t
 
     if (!is.null(data)) {
 
-      df <- as.data.frame(data[["filings"]][["recent"]])
+      df <- as.data.frame(data[["filings"]][["recent"]],
+                          stringsAsFactors = FALSE)
 
       older <- list()
       files <- data[["filings"]][["files"]]
@@ -901,7 +912,8 @@ get_submissions <- function(ciks, forms = c("10-K", "10-Q"), from_date = NULL, t
 
             file_response <- curl::curl(file_url, handle = handle)
 
-            as.data.frame(jsonlite::fromJSON(file_response))
+            as.data.frame(jsonlite::fromJSON(file_response),
+                          stringsAsFactors = FALSE)
 
           }, error = function(e) {
             return(NULL)
@@ -927,10 +939,7 @@ get_submissions <- function(ciks, forms = c("10-K", "10-Q"), from_date = NULL, t
       if (length(older) > 0) {
 
         dfs <- append(list(df), older)
-        cols <- unique(unlist(lapply(dfs, colnames)))
-
-        dfs <- process_align(dfs, cols)
-        df <- do.call(rbind, dfs)
+        df <- process_align(dfs)
 
       }
 
@@ -956,7 +965,6 @@ get_submissions <- function(ciks, forms = c("10-K", "10-Q"), from_date = NULL, t
           df[["cik"]] <- cik
 
           result_ls <- append(result_ls, list(df))
-          result_cols <- union(result_cols, colnames(df))
 
         }
 
@@ -970,10 +978,7 @@ get_submissions <- function(ciks, forms = c("10-K", "10-Q"), from_date = NULL, t
     return(data.frame())
   }
 
-  result_ls <- process_align(result_ls, result_cols)
-
-  result <- do.call(rbind, result_ls)
-  rownames(result) <- NULL
+  result <- process_align(result_ls)
 
   return(result)
 
@@ -1051,7 +1056,6 @@ get_data <- function(data, dimension = NULL, date = NULL, cache_dir = NULL,
 
   count <- 0
   n_filings <- nrow(df)
-  result_cols <- NULL
   result_ls <- list()
 
   for (i in seq_len(n_filings)) {
@@ -1216,11 +1220,11 @@ get_data <- function(data, dimension = NULL, date = NULL, cache_dir = NULL,
           result_df <- cbind(data.frame(
             cik = cik,
             accession = accession,
-            report_date = as.character(report_date)
+            report_date = as.character(report_date),
+            stringsAsFactors = FALSE
           ), result_df)
 
           result_ls <- append(result_ls, list(result_df))
-          result_cols <- union(result_cols, colnames(result_df))
 
         }
 
@@ -1234,10 +1238,7 @@ get_data <- function(data, dimension = NULL, date = NULL, cache_dir = NULL,
     return(data.frame())
   }
 
-  result_ls <- process_align(result_ls, result_cols)
-
-  result <- do.call(rbind, result_ls)
-  rownames(result) <- NULL
+  result <- process_align(result_ls)
 
   return(result)
 

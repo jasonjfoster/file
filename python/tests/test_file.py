@@ -3,6 +3,7 @@ import tempfile
 import time
 import pandas as pd
 import secfile as sec
+from secfile.file import Process
 
 # @pytest.mark.skip(reason = "long-running test")
 
@@ -12,6 +13,52 @@ test_forms = ["10-K", "10-Q"]
 test_dates = ["2023-01-01", "2023-12-31"]
 test_dimensions = [None, "typed", "explicit", "StatementEquityComponentsAxis"]
 test_user_agent = "username@domain.com"
+
+# aligned (shared columns) and misaligned (missing columns, mixed
+# types, and zero rows) data frames
+test_aligns = [
+  {
+    "value": "columns",
+    "dfs": [
+      pd.DataFrame({
+        "filingDate": pd.to_datetime(["2023-01-01"]),
+        "form": ["10-K"]
+      }),
+      pd.DataFrame({
+        "filingDate": pd.to_datetime(["2023-01-02"]),
+        "form": ["10-Q"]
+      })
+    ],
+    "expected": pd.DataFrame({
+      "filingDate": pd.to_datetime(["2023-01-01", "2023-01-02"]),
+      "form": ["10-K", "10-Q"]
+    })
+  },
+  {
+    "value": "fill",
+    "dfs": [
+      pd.DataFrame({
+        "filingDate": pd.to_datetime(["2023-01-01", "2023-01-02"]),
+        "size": [100, 200],
+        "form": ["10-K", "10-Q"]
+      }),
+      pd.DataFrame({
+        "filingDate": pd.to_datetime(["2023-01-03"]),
+        "form": ["8-K"],
+        "us-gaap:Assets": ["1000"]
+      }),
+      pd.DataFrame({
+        "filingDate": pd.to_datetime([])
+      })
+    ],
+    "expected": pd.DataFrame({
+      "filingDate": pd.to_datetime(["2023-01-01", "2023-01-02", "2023-01-03"]),
+      "size": [100, 200, None],
+      "form": ["10-K", "10-Q", "8-K"],
+      "us-gaap:Assets": [None, None, "1000"]
+    })
+  }
+]
 
 def test_that(): # valid 'forms', 'tickers', 'ciks', and 'dimension'
 
@@ -248,6 +295,37 @@ def test_that(): # valid 'forms', 'tickers', 'ciks', and 'dimension'
       errors_ls.append({
         "call": "get_data",
         "value": "date"
+      })
+
+  if (len(errors_ls) > 0):
+    result_ls.extend(errors_ls)
+
+  result_df = pd.DataFrame(result_ls)
+
+  pd.testing.assert_frame_equal(result_df, pd.DataFrame())
+
+def test_align(): # valid 'dfs'
+
+  result_ls = []
+  errors_ls = []
+
+  for align in test_aligns:
+
+    try:
+
+      result = Process.align(align["dfs"])
+
+      pd.testing.assert_frame_equal(result, align["expected"])
+      response = "success"
+
+    except:
+      response = None
+
+    if response is None:
+
+      errors_ls.append({
+        "call": "Process.align",
+        "value": align["value"]
       })
 
   if (len(errors_ls) > 0):
