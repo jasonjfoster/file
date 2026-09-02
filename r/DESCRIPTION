@@ -11,7 +11,7 @@ Description: Simple and efficient access to the SEC's 'EDGAR' APIs
     agent declaration, rate limiting, index parsing, pagination of filing
     metadata, URL construction, document caching, and inline XBRL parsing.
     This abstraction allows users to focus on retrieving data rather than
-    managing API details. Use cases include retrieving filings across a
+    managing API details. Use cases include retrieving data across a
     range of workflows such as indexes, tenures, submissions, and facts.
     The package supports flexible query capabilities, including
     customizable form types, date ranges, and dimensions, and automatic

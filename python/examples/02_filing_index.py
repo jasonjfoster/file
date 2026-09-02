@@ -2,8 +2,8 @@
 #
 # The second most common workflow: build a universe of filings from the
 # master index by form type and date for bulk download or historical
-# research, then refine the universe to a point in time by pairing entry
-# and exit form filings ("tenures").
+# research, then pair entry and exit form filings ("tenures") to
+# construct survivorship-bias-free universes at any date.
 #
 # Pipeline: get_index -> create_tenures
 
@@ -29,9 +29,9 @@ print(index.groupby(index["date"].dt.quarter).size())
 # the link column contains the archives url for each filing document
 print(index["link"].head())
 
-# 2. refine the universe to a point in time: pair exchange listing
-#    registration ("8-A12B") and removal filings to build listing status
-#    windows for survivorship-bias-free universes; removals are filed by
+# 2. pair exchange listing registration ("8-A12B") and removal filings
+#    to determine listing status windows for each filer and construct
+#    survivorship-bias-free universes at any date; removals are filed by
 #    the issuer ("25") or the exchange ("25-NSE")
 #    (use from_year = 1993 for the full history)
 index = sec.get_index(from_year = 2024, forms = ["8-A12B", "25", "25-NSE"],

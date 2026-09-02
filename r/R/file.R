@@ -737,12 +737,12 @@ get_ciks <- function(tickers = NULL, user_agent = NULL, session = NULL) {
 #' Get Submissions from the SEC EDGAR APIs
 #'
 #' A function to get the filing metadata ("submissions") from the SEC EDGAR
-#' APIs for filers with optional form types and date range.
+#' APIs for one or more filers with optional form type and date range filters.
 #'
 #' @param ciks string, numeric, vector, or data frame. CIK or vector of CIKs,
-#' or a data frame that contains a \code{cik} column with optional
-#' \code{start_date} and \code{end_date} columns created using the
-#' \code{\link{get_ciks}} or \code{\link{create_tenures}} functions.
+#' or a data frame created using the \code{\link{get_ciks}} or
+#' \code{\link{create_tenures}} functions that contains a \code{cik} column
+#' with optional \code{start_date} and \code{end_date} columns.
 #' @param forms string or character vector. Form type or vector of form
 #' types to filter (see \code{"data_forms"}) or \code{NULL} for all form types.
 #' @param from_date string. Start date in "YYYY-MM-DD" format.

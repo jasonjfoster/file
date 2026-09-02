@@ -643,13 +643,13 @@ class Submissions:
     Get Submissions from the SEC EDGAR APIs
 
     A method to get the filing metadata ("submissions") from the SEC EDGAR
-    APIs for filers with optional form types and date range.
+    APIs for one or more filers with optional form type and date range filters.
 
     Parameters:
       ciks (str, int, list, or data frame): CIK or list of CIKs, or a data
-        frame that contains a `cik` column with optional `start_date` and
-        `end_date` columns created using the `get_ciks` or `create_tenures`
-        methods.
+        frame created using the `get_ciks` or `create_tenures` methods that
+        contains a `cik` column with optional `start_date` and `end_date`
+        columns.
       forms (str or list of str): form type or list of form types to filter
         (see `data_forms`) or `None` for all form types.
       from_date (str): start date in "YYYY-MM-DD" format.

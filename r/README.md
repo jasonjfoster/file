@@ -9,7 +9,7 @@
 
 'secfile' provides simple and efficient access to the SEC's 'EDGAR' APIs <https://www.sec.gov/search-filings> for querying and retrieving filings.
 
-The 'secfile' package abstracts the complexities of interacting with SEC EDGAR APIs, such as session management, user agent declaration, rate limiting, index parsing, pagination of filing metadata, URL construction, document caching, and inline XBRL parsing. This abstraction allows users to focus on retrieving data rather than managing API details. Use cases include retrieving filings across a range of workflows:
+The 'secfile' package abstracts the complexities of interacting with SEC EDGAR APIs, such as session management, user agent declaration, rate limiting, index parsing, pagination of filing metadata, URL construction, document caching, and inline XBRL parsing. This abstraction allows users to focus on retrieving data rather than managing API details. Use cases include retrieving data across a range of workflows:
 
 * **Indexes**: master index of all filings by form type and date for universe construction
 * **Tenures**: status windows built by pairing entry and exit form filings
