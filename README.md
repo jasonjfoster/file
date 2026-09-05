@@ -11,6 +11,6 @@ The 'file' package abstracts the complexities of interacting with SEC EDGAR APIs
 * **Submissions**: filing metadata for any filer with form type and date range filters
 * **Facts**: investment-level or company-level facts extracted from inline XBRL filings
 
-The package supports flexible query capabilities, including customizable form types, date ranges, and dimensions, and automatic data validation. It handles the SEC's fair access requirements automatically, such as user agent declaration and rate limiting between requests, and caches downloaded documents for efficient retrieval of large datasets.
+The package supports flexible query capabilities, including customizable form types, date ranges, and dimensions, and validates the retrieved data automatically. It handles the SEC's fair access requirements, such as user agent declaration and rate limiting between requests, and caches downloaded documents for efficient retrieval of large datasets.
 
-The implementation uses standard HTTP libraries to handle API interactions efficiently and is available in both R and 'Python' for accessibility to a broad audience.
+The implementation uses standard HTTP libraries to handle API interactions efficiently and supports both R and 'Python' to make it accessible for a broad audience.

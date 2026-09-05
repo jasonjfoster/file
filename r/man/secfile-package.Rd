@@ -21,7 +21,7 @@
     \item \strong{Facts}: investment-level or company-level facts extracted from inline XBRL filings
   }
 
-  The implementation leverages standard HTTP libraries to handle API interactions efficiently and provides support for both R and Python to make it accessible for a broad audience.
+  The implementation uses standard HTTP libraries to handle API interactions efficiently and supports both R and Python to make it accessible for a broad audience.
 }
 \author{
   \packageAuthor{secfile}

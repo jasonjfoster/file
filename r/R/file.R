@@ -456,7 +456,7 @@ get_session <- function(user_agent = NULL) {
 #' @param from_year integer. Start year (e.g., 1993).
 #' @param to_year integer. End year.
 #' @param forms string or character vector. Form type or vector of form
-#' types to filter (see \code{"data_forms"}) or \code{NULL} for all form types.
+#' types to filter (see \code{"data_forms"}), or \code{NULL} for all form types.
 #' @param user_agent string. User agent with contact information.
 #' @param session list. Session created using the \code{\link{get_session}}
 #' function. When a session is provided, the \code{user_agent} argument is ignored.
@@ -661,7 +661,7 @@ create_tenures <- function(data, entry_form, exit_form) {
 #' share classes have one row for each ticker.
 #'
 #' @param tickers string or character vector. Ticker or vector of tickers
-#' to filter or \code{NULL} for all tickers.
+#' to filter, or \code{NULL} for all tickers.
 #' @param user_agent string. User agent with contact information.
 #' @param session list. Session created using the \code{\link{get_session}}
 #' function. When a session is provided, the \code{user_agent} argument is ignored.
@@ -744,7 +744,7 @@ get_ciks <- function(tickers = NULL, user_agent = NULL, session = NULL) {
 #' \code{\link{create_tenures}} functions that contains a \code{cik} column
 #' with optional \code{start_date} and \code{end_date} columns.
 #' @param forms string or character vector. Form type or vector of form
-#' types to filter (see \code{"data_forms"}) or \code{NULL} for all form types.
+#' types to filter (see \code{"data_forms"}), or \code{NULL} for all form types.
 #' @param from_date string. Start date in "YYYY-MM-DD" format.
 #' @param to_date string. End date in "YYYY-MM-DD" format.
 #' @param user_agent string. User agent with contact information.
@@ -993,13 +993,13 @@ get_submissions <- function(ciks, forms = c("10-K", "10-Q"), from_date = NULL, t
 #' number, primary document, and report date for each filing created
 #' using the \code{\link{get_submissions}} function.
 #' @param dimension string. Dimension of contexts to match (i.e., "typed",
-#' "explicit", or an axis name such as "InvestmentIdentifierAxis")
+#' "explicit", or an axis name such as "InvestmentIdentifierAxis"),
 #' or \code{NULL} for all contexts.
-#' @param date string. Date in "YYYY-MM-DD" format to match context periods
+#' @param date string. Date in "YYYY-MM-DD" format to match context periods,
 #' or \code{NULL} for the report date of each filing. Instant contexts match
 #' when the instant equals the date and duration contexts match when
 #' the end date equals the date.
-#' @param cache_dir string. Directory to cache downloaded XBRL instance documents
+#' @param cache_dir string. Directory to cache downloaded XBRL instance documents,
 #' or \code{NULL} to disable caching.
 #' @param user_agent string. User agent with contact information.
 #' @param session list. Session created using the \code{\link{get_session}}

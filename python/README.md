@@ -15,9 +15,9 @@ The 'secfile' package abstracts the complexities of interacting with SEC EDGAR A
 * **Submissions**: filing metadata for any filer with form type and date range filters
 * **Facts**: investment-level or company-level facts extracted from inline XBRL filings
 
-The package supports flexible query capabilities, including customizable form types, date ranges, and dimensions, and automatic data validation. It handles the SEC's fair access requirements automatically, such as user agent declaration and rate limiting between requests, and caches downloaded documents for efficient retrieval of large datasets.
+The package supports flexible query capabilities, including customizable form types, date ranges, and dimensions, and validates the retrieved data automatically. It handles the SEC's fair access requirements, such as user agent declaration and rate limiting between requests, and caches downloaded documents for efficient retrieval of large datasets.
 
-The implementation uses standard HTTP libraries to handle API interactions efficiently and is available in both R and 'Python' for accessibility to a broad audience.
+The implementation uses standard HTTP libraries to handle API interactions efficiently and supports both R and 'Python' to make it accessible for a broad audience.
 
 ## Installation
 
@@ -49,20 +49,20 @@ The SEC requires a user agent that declares contact information for fair access,
 user_agent = "username@domain.com"
 ```
 
-Next, to look up the Central Index Key ("CIK") for one or more tickers, use the `get_ciks()` method:
+Next, to look up the Central Index Key ("CIK") for one or more tickers, use the `get_ciks()` function:
 
 ```python
 ciks = sec.get_ciks(["AAPL", "MSFT"], user_agent = user_agent)
 ```
 
-Then, to retrieve filing metadata for one or more filers, use the `get_submissions()` method. By default, the method retrieves annual ("10-K") and quarterly ("10-Q") report filings:
+Then, to retrieve filing metadata for one or more filers, use the `get_submissions()` function. By default, the function retrieves annual ("10-K") and quarterly ("10-Q") report filings:
 
 ```python
 submissions = sec.get_submissions(ciks, forms = "10-K", from_date = "2024-01-01",
                                   user_agent = user_agent)
 ```
 
-Finally, retrieve facts from inline XBRL filings using the `get_data()` method. By default, the method returns all contexts that match the report date of each filing, and the result contains the period type, start and end dates, dimension axes and members, and facts for each context:
+Finally, retrieve facts from inline XBRL filings using the `get_data()` function. By default, the function returns all contexts that match the report date of each filing, and the result contains the period type, start and end dates, dimension axes and members, and facts for each context:
 
 ```python
 data = sec.get_data(submissions, cache_dir = "cache", user_agent = user_agent)

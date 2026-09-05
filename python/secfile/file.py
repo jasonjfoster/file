@@ -344,7 +344,7 @@ class Session:
     """
     Get the Handle for the SEC EDGAR APIs
 
-    A method to get the handle required to interact with the SEC EDGAR APIs.
+    A function to get the handle required to interact with the SEC EDGAR APIs.
     The SEC requires a user agent that declares contact information
     (e.g., "username@domain.com") for fair access. Sessions are cached by
     user agent and reused across subsequent calls.
@@ -388,16 +388,16 @@ class Index:
     """
     Get Index from the SEC EDGAR APIs
 
-    A method to get the master index of filings from the SEC EDGAR APIs
+    A function to get the master index of filings from the SEC EDGAR APIs
     for a range of years with optional form types.
 
     Parameters:
       from_year (int): start year (e.g., 1993).
       to_year (int): end year.
       forms (str or list of str): form type or list of form types to filter
-        (see `data_forms`) or `None` for all form types.
+        (see `data_forms`), or `None` for all form types.
       user_agent (str): user agent with contact information.
-      session (dict): session created by the `get_session` method. When a
+      session (dict): session created by the `get_session` function. When a
         session is provided, the `user_agent` argument is ignored.
 
     Returns:
@@ -473,13 +473,13 @@ class Tenures:
     """
     Create Tenures for the SEC EDGAR APIs
 
-    A method to create status windows ("tenures") by pairing entry and exit
+    A function to create status windows ("tenures") by pairing entry and exit
     form filings for each filer (e.g., exchange listing registration and
     removal).
 
     Parameters:
       data (data frame): data that contains the company, CIK, form, date,
-        and link for each filing created using the `get_index` method.
+        and link for each filing created using the `get_index` function.
       entry_form (str or list of str): form type or list of form types that
         start a tenure (e.g., "8-A12B").
       exit_form (str or list of str): form type or list of form types that
@@ -566,17 +566,17 @@ class Ciks:
     """
     Get CIKs from the SEC EDGAR APIs
 
-    A method to get the Central Index Key ("CIK") for one or more tickers
+    A function to get the Central Index Key ("CIK") for one or more tickers
     from the SEC EDGAR APIs sourced from
     <https://www.sec.gov/files/company_tickers.json>. The result can be
-    passed to the `get_submissions` method. Filers with multiple share
+    passed to the `get_submissions` function. Filers with multiple share
     classes have one row for each ticker.
 
     Parameters:
-      tickers (str or list of str): ticker or list of tickers to filter
+      tickers (str or list of str): ticker or list of tickers to filter,
         or `None` for all tickers.
       user_agent (str): user agent with contact information.
-      session (dict): session created by the `get_session` method. When a
+      session (dict): session created by the `get_session` function. When a
         session is provided, the `user_agent` argument is ignored.
 
     Returns:
@@ -642,20 +642,20 @@ class Submissions:
     """
     Get Submissions from the SEC EDGAR APIs
 
-    A method to get the filing metadata ("submissions") from the SEC EDGAR
+    A function to get the filing metadata ("submissions") from the SEC EDGAR
     APIs for one or more filers with optional form type and date range filters.
 
     Parameters:
       ciks (str, int, list, or data frame): CIK or list of CIKs, or a data
-        frame created using the `get_ciks` or `create_tenures` methods that
+        frame created using the `get_ciks` or `create_tenures` functions that
         contains a `cik` column with optional `start_date` and `end_date`
         columns.
       forms (str or list of str): form type or list of form types to filter
-        (see `data_forms`) or `None` for all form types.
+        (see `data_forms`), or `None` for all form types.
       from_date (str): start date in "YYYY-MM-DD" format.
       to_date (str): end date in "YYYY-MM-DD" format.
       user_agent (str): user agent with contact information.
-      session (dict): session created by the `get_session` method. When a
+      session (dict): session created by the `get_session` function. When a
         session is provided, the `user_agent` argument is ignored.
 
     Returns:
@@ -821,24 +821,24 @@ def get(data, dimension = None, date = None, cache_dir = None,
   """
   Get Data from the SEC EDGAR APIs
 
-  A method to get facts from inline XBRL filings from the SEC EDGAR APIs
+  A function to get facts from inline XBRL filings from the SEC EDGAR APIs
   using the specified filing metadata.
 
   Parameters:
     data (data frame): filing metadata that contains the CIK, accession
       number, primary document, and report date for each filing created
-      using the `get_submissions` method.
+      using the `get_submissions` function.
     dimension (str): dimension of contexts to match (i.e., "typed",
-      "explicit", or an axis name such as "InvestmentIdentifierAxis")
+      "explicit", or an axis name such as "InvestmentIdentifierAxis"),
       or `None` for all contexts.
-    date (str): date in "YYYY-MM-DD" format to match context periods
+    date (str): date in "YYYY-MM-DD" format to match context periods,
       or `None` for the report date of each filing. Instant contexts match
       when the instant equals the date and duration contexts match when
       the end date equals the date.
-    cache_dir (str): directory to cache downloaded XBRL instance documents
+    cache_dir (str): directory to cache downloaded XBRL instance documents,
       or `None` to disable caching.
     user_agent (str): user agent with contact information.
-    session (dict): session created by the `get_session` method. When a
+    session (dict): session created by the `get_session` function. When a
       session is provided, the `user_agent` argument is ignored.
 
   Returns:

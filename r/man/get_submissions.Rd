@@ -14,7 +14,7 @@ or a data frame created using the \code{\link{get_ciks}} or
 with optional \code{start_date} and \code{end_date} columns.}
 
 \item{forms}{string or character vector. Form type or vector of form
-types to filter (see \code{"data_forms"}) or \code{NULL} for all form types.}
+types to filter (see \code{"data_forms"}), or \code{NULL} for all form types.}
 
 \item{from_date}{string. Start date in "YYYY-MM-DD" format.}
 

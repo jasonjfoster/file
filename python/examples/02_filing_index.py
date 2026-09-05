@@ -11,7 +11,7 @@ import secfile as sec
 
 user_agent = "username@domain.com"
 
-# reuse one session across method calls
+# reuse one session across function calls
 session = sec.get_session(user_agent)
 
 # 1. master index of filings by form type and date

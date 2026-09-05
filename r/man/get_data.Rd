@@ -13,15 +13,15 @@ number, primary document, and report date for each filing created
 using the \code{\link{get_submissions}} function.}
 
 \item{dimension}{string. Dimension of contexts to match (i.e., "typed",
-"explicit", or an axis name such as "InvestmentIdentifierAxis")
+"explicit", or an axis name such as "InvestmentIdentifierAxis"),
 or \code{NULL} for all contexts.}
 
-\item{date}{string. Date in "YYYY-MM-DD" format to match context periods
+\item{date}{string. Date in "YYYY-MM-DD" format to match context periods,
 or \code{NULL} for the report date of each filing. Instant contexts match
 when the instant equals the date and duration contexts match when
 the end date equals the date.}
 
-\item{cache_dir}{string. Directory to cache downloaded XBRL instance documents
+\item{cache_dir}{string. Directory to cache downloaded XBRL instance documents,
 or \code{NULL} to disable caching.}
 
 \item{user_agent}{string. User agent with contact information.}
