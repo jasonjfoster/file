@@ -561,6 +561,10 @@ get_index <- function(from_year = 1993, to_year = NULL, forms = c("10-K", "10-Q"
 #' form types that start a tenure (e.g., "8-A12B").
 #' @param exit_form string or character vector. Form type or vector of
 #' form types that end a tenure (e.g., "25" and "25-NSE").
+#' @details Filings are sorted by date within each CIK. An entry form opens a
+#' tenure, a later entry form before any exit replaces it, and the next exit
+#' form closes it. An exit with no open entry yields a tenure with a missing
+#' start date, and an entry with no later exit yields a missing end date.
 #' @return A data frame that contains the company, CIK, start date, end date,
 #' start link, and end link for each tenure. The end date is missing
 #' for active tenures.

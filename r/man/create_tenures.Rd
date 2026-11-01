@@ -26,6 +26,12 @@ A function to create status windows ("tenures") by pairing entry and exit
 form filings for each filer (e.g., exchange listing registration and
 removal).
 }
+\details{
+Filings are sorted by date within each CIK. An entry form opens a
+tenure, a later entry form before any exit replaces it, and the next exit
+form closes it. An exit with no open entry yields a tenure with a missing
+start date, and an entry with no later exit yields a missing end date.
+}
 \examples{
 \dontrun{
 index <- get_index(forms = c("8-A12B", "25", "25-NSE"),

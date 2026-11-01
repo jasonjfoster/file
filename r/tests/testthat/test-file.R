@@ -1,26 +1,52 @@
 test_that("valid 'forms', 'tickers', 'ciks', and 'dimension'", {
 
-  # skip("long-running test")
+  skip_on_cran()
 
   count <- 0
   result_ls <- list()
   errors_ls <- list()
 
-  index <- tryCatch({
-    get_index(from_year = test_year, to_year = test_year, forms = NULL,
-              user_agent = test_user_agent)
-  }, error = function(e) {
-    data.frame()
-  })
+  index_ls <- list()
 
-  if (length(index) == 0) {
+  for (name in names(test_indexes)) {
 
-    errors_ls <- append(errors_ls, list(data.frame(
-      call = "get_index",
-      value = "forms"
-    )))
+    args <- test_indexes[[name]]
+    from_year <- args[["from_year"]]
+    forms <- args[["forms"]]
 
-  } else {
+    index_ls[[name]] <- data.frame()
+
+    response <- tryCatch({
+
+      index_ls[[name]] <- get_index(from_year = from_year, to_year = from_year, forms = forms,
+                                    user_agent = test_user_agent)
+
+      # the forms filter returns only the requested form types
+      if ((length(index_ls[[name]]) > 0) &&
+          (is.null(forms) || all(toupper(index_ls[[name]][["form"]]) %in% forms))) {
+        "success"
+      } else {
+        NULL
+      }
+
+    }, error = function(e) {
+      NULL
+    })
+
+    if (is.null(response)) {
+
+      errors_ls <- append(errors_ls, list(data.frame(
+        call = "get_index",
+        value = name
+      )))
+
+    }
+
+  }
+
+  index <- index_ls[["all forms"]]
+
+  if (length(index) > 0) {
 
     # amendments are filed with an "/A" suffix (e.g., "10-K/A")
     forms_live <- sub("/A$", "", toupper(index[["form"]]))
@@ -39,38 +65,50 @@ test_that("valid 'forms', 'tickers', 'ciks', and 'dimension'", {
 
   }
 
-  # the first year is the smallest index
-  response <- tryCatch({
+  tenures_ls <- list()
 
-    index_form <- get_index(from_year = 1993, to_year = 1993, forms = test_forms[1],
-                            user_agent = test_user_agent)
+  for (name in names(test_tenures)) {
 
-    if (length(index_form) > 0) {
-      "success"
-    } else {
+    args <- test_tenures[[name]]
+    entry_form <- args[["entry_form"]]
+    exit_form <- args[["exit_form"]]
+
+    tenures_ls[[name]] <- data.frame()
+
+    response <- tryCatch({
+
+      tenures_ls[[name]] <- create_tenures(index, entry_form, exit_form)
+
+      if (length(tenures_ls[[name]]) > 0) {
+        "success"
+      } else {
+        NULL
+      }
+
+    }, error = function(e) {
       NULL
+    })
+
+    if (is.null(response)) {
+
+      errors_ls <- append(errors_ls, list(data.frame(
+        call = "create_tenures",
+        value = name
+      )))
+
     }
-
-  }, error = function(e) {
-    NULL
-  })
-
-  if (is.null(response)) {
-
-    errors_ls <- append(errors_ls, list(data.frame(
-      call = "get_index",
-      value = test_forms[1]
-    )))
 
   }
 
-  tenures <- data.frame()
+  tenures <- tenures_ls[["entry_form, exit_form"]]
 
+  # more form types match at least as many tenures and the forms filter agrees
   response <- tryCatch({
 
-    tenures <- create_tenures(index, "8-A12B", "25")
+    tenures_forms <- create_tenures(index_ls[["tenure forms"]], "8-A12B", c("25", "25-NSE"))
 
-    if (length(tenures) > 0) {
+    if (!is.unsorted(vapply(tenures_ls, nrow, integer(1))) &&
+        (nrow(tenures_forms) == nrow(tenures_ls[["entry_form, exit_forms"]]))) {
       "success"
     } else {
       NULL
@@ -84,33 +122,7 @@ test_that("valid 'forms', 'tickers', 'ciks', and 'dimension'", {
 
     errors_ls <- append(errors_ls, list(data.frame(
       call = "create_tenures",
-      value = "entry_form, exit_form"
-    )))
-
-  }
-
-  # registrations are filed under section 12(b) ("8-A12B") or 12(g) ("8-A12G");
-  # removals are filed by the issuer ("25") or the exchange ("25-NSE")
-  response <- tryCatch({
-
-    tenures_vector <- create_tenures(index, c("8-A12B", "8-A12G"),
-                                     c("25", "25-NSE"))
-
-    if (nrow(tenures_vector) >= nrow(tenures)) {
-      "success"
-    } else {
-      NULL
-    }
-
-  }, error = function(e) {
-    NULL
-  })
-
-  if (is.null(response)) {
-
-    errors_ls <- append(errors_ls, list(data.frame(
-      call = "create_tenures",
-      value = "entry_forms, exit_forms"
+      value = "forms"
     )))
 
   }
@@ -153,93 +165,71 @@ test_that("valid 'forms', 'tickers', 'ciks', and 'dimension'", {
 
   }
 
-  submissions <- data.frame()
-
-  response <- tryCatch({
-
-    submissions <- get_submissions(ciks, forms = test_forms,
-                                   from_date = test_dates[1], to_date = test_dates[2],
-                                   user_agent = test_user_agent)
-
-    if (length(submissions) > 0) {
-      "success"
-    } else {
-      NULL
-    }
-
-  }, error = function(e) {
-    NULL
-  })
-
-  if (is.null(response)) {
-
-    errors_ls <- append(errors_ls, list(data.frame(
-      call = "get_submissions",
-      value = "ciks"
-    )))
-
-  }
-
-  response <- tryCatch({
-
-    cik <- ciks[["cik"]][1]
-
-    submissions_cik <- get_submissions(cik, forms = test_forms[1],
-                                       from_date = test_dates[1], to_date = test_dates[2],
-                                       user_agent = test_user_agent)
-
-    if (length(submissions_cik) > 0) {
-      "success"
-    } else {
-      NULL
-    }
-
-  }, error = function(e) {
-    NULL
-  })
-
-  if (is.null(response)) {
-
-    errors_ls <- append(errors_ls, list(data.frame(
-      call = "get_submissions",
-      value = "cik"
-    )))
-
-  }
-
-  submissions_tenures <- data.frame()
-
   # tenures with a missing start date (no lower bound), a missing end date
   # (no upper bound), and closed (both dates)
-  response <- tryCatch({
+  tenures_na <- tryCatch({
 
-    tenures_na <- rbind(
+    rbind(
       head(tenures[is.na(tenures[["start_date"]]), ], 1),
       head(tenures[is.na(tenures[["end_date"]]), ], 1),
       head(tenures[!is.na(tenures[["start_date"]]) & !is.na(tenures[["end_date"]]), ], 1)
     )
 
-    submissions_tenures <- get_submissions(tenures_na, forms = NULL,
-                                           user_agent = test_user_agent)
-
-    if (length(submissions_tenures) > 0) {
-      "success"
-    } else {
-      NULL
-    }
-
   }, error = function(e) {
-    NULL
+    data.frame()
   })
 
-  if (is.null(response)) {
+  test_submissions <- list(
+    "ciks" = list(ciks = ciks, forms = test_forms,
+                  from_date = test_dates[1], to_date = test_dates[2]),
+    "cik" = list(ciks = ciks[["cik"]][1], forms = test_forms[1],
+                 from_date = test_dates[1], to_date = test_dates[2]),
+    "events" = list(ciks = ciks, forms = test_forms_events,
+                    from_date = test_dates[1], to_date = test_dates[2]),
+    "tenures" = list(ciks = tenures_na, forms = NULL,
+                     from_date = NULL, to_date = NULL)
+  )
 
-    errors_ls <- append(errors_ls, list(data.frame(
-      call = "get_submissions",
-      value = "tenures"
-    )))
+  submissions_ls <- list()
+
+  for (name in names(test_submissions)) {
+
+    args <- test_submissions[[name]]
+    forms <- args[["forms"]]
+
+    submissions_ls[[name]] <- data.frame()
+
+    response <- tryCatch({
+
+      submissions_ls[[name]] <- get_submissions(args[["ciks"]], forms = forms,
+                                                from_date = args[["from_date"]], to_date = args[["to_date"]],
+                                                user_agent = test_user_agent)
+
+      # the forms filter returns only the requested form types
+      if ((length(submissions_ls[[name]]) > 0) &&
+          (is.null(forms) || all(toupper(submissions_ls[[name]][["form"]]) %in% forms))) {
+        "success"
+      } else {
+        NULL
+      }
+
+    }, error = function(e) {
+      NULL
+    })
+
+    if (is.null(response)) {
+
+      errors_ls <- append(errors_ls, list(data.frame(
+        call = "get_submissions",
+        value = name
+      )))
+
+    }
 
   }
+
+  submissions <- submissions_ls[["ciks"]]
+  submissions_tenures <- submissions_ls[["tenures"]]
 
   if (length(submissions_tenures) > 0) {
 

@@ -477,6 +477,11 @@ class Tenures:
     form filings for each filer (e.g., exchange listing registration and
     removal).
 
+    Filings are sorted by date within each CIK. An entry form opens a
+    tenure, a later entry form before any exit replaces it, and the next exit
+    form closes it. An exit with no open entry yields a tenure with a missing
+    start date, and an entry with no later exit yields a missing end date.
+
     Parameters:
       data (data frame): data that contains the company, CIK, form, date,
         and link for each filing created using the `get_index` function.

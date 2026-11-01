@@ -1,18 +1,34 @@
-# import pytest
 import tempfile
 import time
 import pandas as pd
 import secfile as sec
 from secfile.file import Process
 
-# @pytest.mark.skip(reason = "long-running test")
-
+# test arguments
 test_year = 2006 # both "8-A12B" and "25" are filed electronically (2005 onward)
 test_tickers = ["AAPL", ["AAPL", "MSFT"], ["AAPL", "MSFT", "AMZN"]]
 test_forms = ["10-K", "10-Q"]
+test_forms_events = "8-K"
 test_dates = ["2023-01-01", "2023-12-31"]
 test_dimensions = [None, "typed", "explicit", "StatementEquityComponentsAxis"]
 test_user_agent = "username@domain.com"
+
+# the first year is the smallest index
+test_indexes = {
+  "all forms": {"from_year": test_year, "forms": None},
+  "first year": {"from_year": 1993, "forms": test_forms[0:1]},
+  "tenure forms": {"from_year": test_year, "forms": ["8-A12B", "25", "25-NSE"]}
+}
+
+# registrations are filed under section 12(b) ("8-A12B") or 12(g) ("8-A12G");
+# removals are filed by the issuer ("25") or the exchange ("25-NSE")
+test_tenures = {
+  "entry_form, exit_form": {"entry_form": "8-A12B", "exit_form": "25"},
+  "entry_form, exit_forms": {"entry_form": "8-A12B", "exit_form": ["25", "25-NSE"]},
+  "entry_forms, exit_forms": {"entry_form": ["8-A12B", "8-A12G"], "exit_form": ["25", "25-NSE"]}
+}
+
+# test data
 
 # aligned (shared columns) and misaligned (missing columns, mixed
 # types, and zero rows) data frames
@@ -66,20 +82,37 @@ def test_that(): # valid 'forms', 'tickers', 'ciks', and 'dimension'
   result_ls = []
   errors_ls = []
 
-  try:
-    index = sec.get_index(from_year = test_year, to_year = test_year, forms = None,
-                          user_agent = test_user_agent)
-  except:
-    index = pd.DataFrame()
+  index_ls = {}
 
-  if (len(index) == 0):
+  for name, args in test_indexes.items():
 
-    errors_ls.append({
-      "call": "get_index",
-      "value": "forms"
-    })
+    from_year = args["from_year"]
+    forms = args["forms"]
 
-  else:
+    index_ls[name] = pd.DataFrame()
+
+    try:
+
+      index_ls[name] = sec.get_index(from_year = from_year, to_year = from_year, forms = forms,
+                                     user_agent = test_user_agent)
+
+      # the forms filter returns only the requested form types
+      response = "success" if ((len(index_ls[name]) > 0) and
+                               ((forms is None) or index_ls[name]["form"].str.upper().isin(forms).all())) else None
+
+    except:
+      response = None
+
+    if response is None:
+
+      errors_ls.append({
+        "call": "get_index",
+        "value": name
+      })
+
+  index = index_ls["all forms"]
+
+  if (len(index) > 0):
 
     # amendments are filed with an "/A" suffix (e.g., "10-K/A")
     forms_live = index["form"].str.upper().str.replace(r"/A$", "", regex = True)
@@ -94,47 +127,40 @@ def test_that(): # valid 'forms', 'tickers', 'ciks', and 'dimension'
         "value": form
       })
 
-  # the first year is the smallest index
+  tenures_ls = {}
+
+  for name, args in test_tenures.items():
+
+    entry_form = args["entry_form"]
+    exit_form = args["exit_form"]
+
+    tenures_ls[name] = pd.DataFrame()
+
+    try:
+
+      tenures_ls[name] = sec.create_tenures(index, entry_form, exit_form)
+      response = "success" if (len(tenures_ls[name]) > 0) else None
+
+    except:
+      response = None
+
+    if response is None:
+
+      errors_ls.append({
+        "call": "create_tenures",
+        "value": name
+      })
+
+  tenures = tenures_ls["entry_form, exit_form"]
+
+  # more form types match at least as many tenures and the forms filter agrees
   try:
 
-    index_form = sec.get_index(from_year = 1993, to_year = 1993, forms = test_forms[0],
-                               user_agent = test_user_agent)
-    response = "success" if (len(index_form) > 0) else None
+    tenures_forms = sec.create_tenures(index_ls["tenure forms"], "8-A12B", ["25", "25-NSE"])
 
-  except:
-    response = None
-
-  if response is None:
-
-    errors_ls.append({
-      "call": "get_index",
-      "value": test_forms[0]
-    })
-
-  try:
-
-    tenures = sec.create_tenures(index, "8-A12B", "25")
-    response = "success" if (len(tenures) > 0) else None
-
-  except:
-
-    tenures = pd.DataFrame()
-    response = None
-
-  if response is None:
-
-    errors_ls.append({
-      "call": "create_tenures",
-      "value": "entry_form, exit_form"
-    })
-
-  # registrations are filed under section 12(b) ("8-A12B") or 12(g) ("8-A12G");
-  # removals are filed by the issuer ("25") or the exchange ("25-NSE")
-  try:
-
-    tenures_vector = sec.create_tenures(index, ["8-A12B", "8-A12G"],
-                                        ["25", "25-NSE"])
-    response = "success" if (len(tenures_vector) >= len(tenures)) else None
+    n_rows = [len(tenures) for tenures in tenures_ls.values()]
+    response = "success" if ((n_rows == sorted(n_rows)) and
+                             (len(tenures_forms) == len(tenures_ls["entry_form, exit_forms"]))) else None
 
   except:
     response = None
@@ -143,8 +169,10 @@ def test_that(): # valid 'forms', 'tickers', 'ciks', and 'dimension'
 
     errors_ls.append({
       "call": "create_tenures",
-      "value": "entry_forms, exit_forms"
+      "value": "forms"
     })
+
+  ciks = pd.DataFrame()
 
   for tickers in test_tickers:
 
@@ -170,44 +198,6 @@ def test_that(): # valid 'forms', 'tickers', 'ciks', and 'dimension'
       print("pause one second after five requests")
       time.sleep(1)
 
-  try:
-
-    submissions = sec.get_submissions(ciks, forms = test_forms,
-                                      from_date = test_dates[0], to_date = test_dates[1],
-                                      user_agent = test_user_agent)
-    response = "success" if (len(submissions) > 0) else None
-
-  except:
-
-    submissions = pd.DataFrame()
-    response = None
-
-  if response is None:
-
-    errors_ls.append({
-      "call": "get_submissions",
-      "value": "ciks"
-    })
-
-  try:
-
-    cik = ciks["cik"].iloc[0]
-
-    submissions_cik = sec.get_submissions(cik, forms = test_forms[0],
-                                          from_date = test_dates[0], to_date = test_dates[1],
-                                          user_agent = test_user_agent)
-    response = "success" if (len(submissions_cik) > 0) else None
-
-  except:
-    response = None
-
-  if response is None:
-
-    errors_ls.append({
-      "call": "get_submissions",
-      "value": "cik"
-    })
-
   # tenures with a missing start date (no lower bound), a missing end date
   # (no upper bound), and closed (both dates)
   try:
@@ -218,21 +208,50 @@ def test_that(): # valid 'forms', 'tickers', 'ciks', and 'dimension'
       tenures.dropna(subset = ["start_date", "end_date"]).head(1)
     ], ignore_index = True)
 
-    submissions_tenures = sec.get_submissions(tenures_na, forms = None,
-                                              user_agent = test_user_agent)
-    response = "success" if (len(submissions_tenures) > 0) else None
-
   except:
+    tenures_na = pd.DataFrame()
 
-    submissions_tenures = pd.DataFrame()
-    response = None
+  test_submissions = {
+    "ciks": {"ciks": ciks, "forms": test_forms,
+             "from_date": test_dates[0], "to_date": test_dates[1]},
+    "cik": {"ciks": ciks["cik"].iloc[0] if (len(ciks) > 0) else None, "forms": test_forms[0:1],
+            "from_date": test_dates[0], "to_date": test_dates[1]},
+    "events": {"ciks": ciks, "forms": [test_forms_events],
+               "from_date": test_dates[0], "to_date": test_dates[1]},
+    "tenures": {"ciks": tenures_na, "forms": None,
+                "from_date": None, "to_date": None}
+  }
 
-  if response is None:
+  submissions_ls = {}
 
-    errors_ls.append({
-      "call": "get_submissions",
-      "value": "tenures"
-    })
+  for name, args in test_submissions.items():
+
+    forms = args["forms"]
+
+    submissions_ls[name] = pd.DataFrame()
+
+    try:
+
+      submissions_ls[name] = sec.get_submissions(args["ciks"], forms = forms,
+                                                 from_date = args["from_date"], to_date = args["to_date"],
+                                                 user_agent = test_user_agent)
+
+      # the forms filter returns only the requested form types
+      response = "success" if ((len(submissions_ls[name]) > 0) and
+                               ((forms is None) or submissions_ls[name]["form"].str.upper().isin(forms).all())) else None
+
+    except:
+      response = None
+
+    if response is None:
+
+      errors_ls.append({
+        "call": "get_submissions",
+        "value": name
+      })
+
+  submissions = submissions_ls["ciks"]
+  submissions_tenures = submissions_ls["tenures"]
 
   if (len(submissions_tenures) > 0):
 
