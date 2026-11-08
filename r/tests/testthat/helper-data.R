@@ -27,8 +27,7 @@ test_tenures <- list(
 # aligned (shared columns) and misaligned (missing columns, mixed
 # types, and zero rows) data frames
 test_aligns <- list(
-  list(
-    value = "columns",
+  "columns" = list(
     dfs = list(
       data.frame(
         filingDate = as.Date("2023-01-01"),
@@ -47,8 +46,7 @@ test_aligns <- list(
       stringsAsFactors = FALSE
     )
   ),
-  list(
-    value = "fill",
+  "fill" = list(
     dfs = list(
       data.frame(
         filingDate = as.Date(c("2023-01-01", "2023-01-02")),

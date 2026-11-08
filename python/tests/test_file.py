@@ -32,9 +32,8 @@ test_tenures = {
 
 # aligned (shared columns) and misaligned (missing columns, mixed
 # types, and zero rows) data frames
-test_aligns = [
-  {
-    "value": "columns",
+test_aligns = {
+  "columns": {
     "dfs": [
       pd.DataFrame({
         "filingDate": pd.to_datetime(["2023-01-01"]),
@@ -50,8 +49,7 @@ test_aligns = [
       "form": ["10-K", "10-Q"]
     })
   },
-  {
-    "value": "fill",
+  "fill": {
     "dfs": [
       pd.DataFrame({
         "filingDate": pd.to_datetime(["2023-01-01", "2023-01-02"]),
@@ -74,7 +72,7 @@ test_aligns = [
       "us-gaap:Assets": [None, None, "1000"]
     })
   }
-]
+}
 
 def test_that(): # valid 'forms', 'tickers', 'ciks', and 'dimension'
 
@@ -328,13 +326,16 @@ def test_align(): # valid 'dfs'
   result_ls = []
   errors_ls = []
 
-  for align in test_aligns:
+  for name, args in test_aligns.items():
+
+    dfs = args["dfs"]
+    expected = args["expected"]
 
     try:
 
-      result = Process.align(align["dfs"])
+      result = Process.align(dfs)
 
-      pd.testing.assert_frame_equal(result, align["expected"])
+      pd.testing.assert_frame_equal(result, expected)
       response = "success"
 
     except:
@@ -344,7 +345,7 @@ def test_align(): # valid 'dfs'
 
       errors_ls.append({
         "call": "Process.align",
-        "value": align["value"]
+        "value": name
       })
 
   if (len(errors_ls) > 0):

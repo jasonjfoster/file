@@ -36,3 +36,6 @@ urls.Source = "https://github.com/jasonjfoster/file/tree/main/python"
 
 [tool.setuptools]
 package-data.secfile = [ "data/*.csv" ]
+
+[tool.coverage]
+run.source = [ "secfile" ]
