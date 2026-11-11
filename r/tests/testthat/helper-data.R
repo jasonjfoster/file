@@ -75,3 +75,12 @@ test_aligns <- list(
     )
   )
 )
+
+test_check_index <- data.frame(
+  company = c("A", "A"),
+  cik = c("1", "1"),
+  form = c("8-A12B", "25"),
+  date = as.Date(c("2006-01-01", "2006-12-31")),
+  link = c("a", "b"),
+  stringsAsFactors = FALSE
+)

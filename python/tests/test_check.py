@@ -3,16 +3,18 @@ import pytest
 import pandas as pd
 import secfile as sec
 
+# test data
+test_check_index = pd.DataFrame({
+  "company": ["A", "A"],
+  "cik": ["1", "1"],
+  "form": ["8-A12B", "25"],
+  "date": pd.to_datetime(["2006-01-01", "2006-12-31"]),
+  "link": ["a", "b"]
+})
+
 def test_check(): # input checks
 
   # test data
-  test_check_index = pd.DataFrame({
-    "company": ["A", "A"],
-    "cik": ["1", "1"],
-    "form": ["8-A12B", "25"],
-    "date": pd.to_datetime(["2006-01-01", "2006-12-31"]),
-    "link": ["a", "b"]
-  })
   test_check_ciks = "320193"
 
   # check_user_agent
